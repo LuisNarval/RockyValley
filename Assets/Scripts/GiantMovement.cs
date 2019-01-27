@@ -13,7 +13,7 @@ public class GiantMovement : MonoBehaviour
     private Vector3 startingPos;
     private Vector3 startingHandPos;
 
-    [Range(0.01f, 2f)]
+    [Range(1.0f, 20.0f)]
     public float speed = 1;
 
     void Start ()
