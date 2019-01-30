@@ -46,12 +46,10 @@ public class GiantMovement : MonoBehaviour
         startingPos = this.transform.position;
         startingHandPos = handPressed.localPosition;
 
-        Debug.Log(handPressed.name + ":" + handPressed.localPosition + " and pressed " + startingHandPos);
     }
 
     public void CalculateMovement(Transform handPressed)
     {
-        Debug.Log(startingHandPos.x);
         Vector3 deltaMovement = handPressed.transform.localPosition - startingHandPos;
         deltaMovement *= speed;
         deltaMovement.y = 0;

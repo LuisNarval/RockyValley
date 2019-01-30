@@ -8,8 +8,10 @@ using Valve.VR.InteractionSystem;
 public class Player : MonoBehaviour
 {
     [Header("Movement variables")]
-    [Range(0.01f,50)]
-    public float speed;
+    
+    public float speed = 1;
+    [Range(0.01f, 50)]
+    public float speedRotation = 1;
     public enum EnumPlayerControl
     {
         player_1,
@@ -22,19 +24,27 @@ public class Player : MonoBehaviour
     private string verticalAxisString;
 
 
-
+    public Animator _animator;
     private CharacterController _characterController;
     private Hand _holdedHand;
+
 
     public enum EnumPlayerState
     {
         walking,
         grab,
-        death
+        death,
+        win
     };
     public EnumPlayerState playerState;
 
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (playerState.Equals(EnumPlayerState.grab) && this.transform.parent == null)
+            KillThisPlayer();
+
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -92,19 +102,33 @@ public class Player : MonoBehaviour
         {
             case EnumPlayerState.walking:
                 float gravity;
-                Debug.Log(_characterController.isGrounded);
+                //Debug.Log(_characterController.isGrounded);
                 gravity = _characterController.isGrounded ? 0 : -1f;
 
+                
+
+                Vector3 axisVector = new Vector3(Input.GetAxis(horizontalAxisString), 0, Input.GetAxis(verticalAxisString));
+
+                this.transform.LookAt( this.transform.position + axisVector);
+                
+
                 _characterController.Move(
-                    (Vector3.right * Input.GetAxis(horizontalAxisString) * speed * Time.deltaTime) +
                     (Vector3.up * gravity * Time.deltaTime) +
-                    (Vector3.forward * Input.GetAxis(verticalAxisString) * speed * Time.deltaTime));
+                    (this.transform.forward * axisVector.magnitude * speed * Time.deltaTime));
+
+                _animator.SetFloat("Speed", axisVector.magnitude);
 
                 if (this.transform.position.y < -1)
+                {
                     KillThisPlayer();
+                }
+                    
             break;
 
             case EnumPlayerState.death:
+            break;
+
+            case EnumPlayerState.win:
             break;
 
             case EnumPlayerState.grab:
@@ -118,24 +142,45 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void RestoreThisPlayer()
+    {
+        playerState = EnumPlayerState.walking;
+        _characterController.enabled = true;
+        _animator.SetBool("Holding", false);
+        this.transform.localEulerAngles = Vector3.zero;
+    }
+
+    public void UnattachHand()
+    {
+        _holdedHand = null;
+    }
+
     public void GrabThisPlayer()
     {
         playerState = EnumPlayerState.grab;
         _characterController.enabled = false;
         _holdedHand = GetComponentInParent<Hand>();
+        _animator.SetBool("Holding", true);
+    }
+
+    public void WinPlayer()
+    {
+        if (!playerState.Equals(EnumPlayerState.death))
+            _animator.Play("Dance");
+        playerState = EnumPlayerState.win;
     }
 
     public void KillThisPlayer()
     {
         GameManager.instance.RemovePlayer(this, true);
-        if (_holdedHand!=null)
+        /*if (_holdedHand!=null)
         {
             _holdedHand.HoverUnlock(GetComponent<Interactable>());
             _holdedHand.DetachObject(this.gameObject);
-        }
-        
-        this.gameObject.SetActive(false);
-        
+        }*/
+
+        //this.gameObject.SetActive(false);
+        //_animator.enabled = false;
         
     }
 }

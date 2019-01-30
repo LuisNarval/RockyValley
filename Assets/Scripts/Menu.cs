@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Menu : MonoBehaviour {
 
     public Animator anim_menu;
 
-
+    public UnityEvent eventAtStart;
     public string ESTADO="";
 
 	// Use this for initialization
@@ -64,6 +65,13 @@ public class Menu : MonoBehaviour {
                 break;
             }
         }
+
+    }
+
+
+    public void StartGame()
+    {
+        eventAtStart.Invoke();
     }
 
 
