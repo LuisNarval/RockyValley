@@ -8,27 +8,23 @@ using Valve.VR.InteractionSystem;
 public class Player : MonoBehaviour
 {
     [Header("Movement variables")]
-    
+    [Range(0.01f, 10)]
     public float speed = 1;
     [Range(0.01f, 50)]
     public float speedRotation = 1;
-    public enum EnumPlayerControl
-    {
-        player_1,
-        player_2,
-        player_3,
-        player_4
-     };
-    public EnumPlayerControl playerControl;
+
+    // 
     private string horizontalAxisString;
     private string verticalAxisString;
+    [HideInInspector]
+    public string buttonString;
 
-
+    [Header("External references")]
     public Animator _animator;
     private CharacterController _characterController;
     private Hand _holdedHand;
 
-
+    // Enum variables
     public enum EnumPlayerState
     {
         walking,
@@ -37,6 +33,15 @@ public class Player : MonoBehaviour
         win
     };
     public EnumPlayerState playerState;
+
+    public enum EnumPlayerControl
+    {
+        player_1,
+        player_2,
+        player_3,
+        player_4
+    };
+    public EnumPlayerControl playerControl;
 
 
     private void OnCollisionEnter(Collision collision)
@@ -64,27 +69,32 @@ public class Player : MonoBehaviour
         // Player Axis for movement and buttons
         horizontalAxisString = "Horizontal_";
         verticalAxisString = "Vertical_";
+        buttonString = "Action_";
 		switch (playerControl)
         {
             case EnumPlayerControl.player_1:
                 horizontalAxisString = horizontalAxisString + "P1";
                 verticalAxisString = verticalAxisString + "P1";
+                buttonString = buttonString + "P1";
             break;
 
             case EnumPlayerControl.player_2:
                 horizontalAxisString = horizontalAxisString + "P2";
                 verticalAxisString = verticalAxisString + "P2";
-            break;
+                buttonString = buttonString + "P2";
+                break;
 
             case EnumPlayerControl.player_3:
                 horizontalAxisString = horizontalAxisString + "P3";
                 verticalAxisString = verticalAxisString + "P3";
-            break;
+                buttonString = buttonString + "P3";
+                break;
 
             case EnumPlayerControl.player_4:
                 horizontalAxisString = horizontalAxisString + "P4";
                 verticalAxisString = verticalAxisString + "P4";
-            break;
+                buttonString = buttonString + "P4";
+                break;
 
             default:
             break;
@@ -96,25 +106,22 @@ public class Player : MonoBehaviour
 
 	}
 	
-	void Update ()
+	void LateUpdate ()
     {
         switch(playerState)
         {
             case EnumPlayerState.walking:
-                float gravity;
-                //Debug.Log(_characterController.isGrounded);
-                gravity = _characterController.isGrounded ? 0 : -1f;
-
-                
+                float gravity = Physics.gravity.y;
+                //gravity = _characterController.isGrounded ? 0 : Physics.gravity.y;
 
                 Vector3 axisVector = new Vector3(Input.GetAxis(horizontalAxisString), 0, Input.GetAxis(verticalAxisString));
-
                 this.transform.LookAt( this.transform.position + axisVector);
-                
 
-                _characterController.Move(
-                    (Vector3.up * gravity * Time.deltaTime) +
-                    (this.transform.forward * axisVector.magnitude * speed * Time.deltaTime));
+                _characterController.Move
+                    (
+                        (Vector3.up * gravity * Time.deltaTime) +
+                        (this.transform.forward * axisVector.magnitude * speed * Time.deltaTime)
+                    );
 
                 _animator.SetFloat("Speed", axisVector.magnitude);
 

@@ -5,9 +5,12 @@ using UnityEngine;
 [RequireComponent(typeof(Camera))]
 public class CameraManager : MonoBehaviour
 {
+    public static CameraManager instance;
+
+    public Camera villagersCamera { get { return sceneCamera; } set { sceneCamera = value; } }
 
     private Vector3 middlePoint;
-    private Camera thisCamera;
+    private Camera sceneCamera;
 
     public Vector3 offset;
     private Vector3 speed;
@@ -18,7 +21,8 @@ public class CameraManager : MonoBehaviour
 
     private void Awake()
     {
-        thisCamera = GetComponent<Camera>();
+        instance = this;
+        sceneCamera = GetComponent<Camera>();
     }
 
     void Start ()
@@ -51,7 +55,7 @@ public class CameraManager : MonoBehaviour
             boundPlayers.Encapsulate(GameManager.instance.playersInScene[i].transform.position);
         }
         float zoom = Mathf.Lerp(maxZoom, minZoom,  (boundPlayers.size.x + boundPlayers.size.z) / 2 );
-        thisCamera.fieldOfView = Mathf.Lerp(thisCamera.fieldOfView, zoom, Time.deltaTime);
+        sceneCamera.fieldOfView = Mathf.Lerp(sceneCamera.fieldOfView, zoom, Time.deltaTime);
 
     }
 
